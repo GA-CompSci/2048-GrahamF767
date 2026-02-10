@@ -40,7 +40,6 @@ public class Game {
     }
     
     /**
-     * TODO #1: Implement the method to add a random tile to the board
      * Requirements:
      * - 90% chance of adding a 2
      * - 10% chance of adding a 4
@@ -50,12 +49,27 @@ public class Game {
      * Hint: Use random.nextInt(10) < 9 for 90% probability
      */
     private void addRandomTile() {
-        // TODO: Complete this method
+        
+        // check to see if there are any empty cells at all
+        ArrayList<int[]> emptyCells = getEmptyCells();
+        if(emptyCells.isEmpty()) return; // shut this down if the board is already full
+
+        // emptyCells.get(0);
+        // {row, col}
+
+        // pick a random empty cell
+        int[] spot = emptyCells.get((int)(Math.random() * emptyCells.size()));
+
+        // 90% chance of getting a 2; 10% chance of getting a 4
+        if(random.nextInt(10)< 9) board[spot[0]][spot[1]] = 2;
+        else board[spot[0]][spot[1]] = 4;
+
+        // fancy method: tunary operator
+        board[spot[0]][spot[1]] = (random.nextInt(10) < 9) ? 2 : 4;
         
     }
     
     /**
-     * TODO #2: Implement the method to get all empty cells on the board
      * Requirements:
      * - Return an ArrayList of int arrays [row, col] for each empty cell
      * - A cell is empty if its value is 0
@@ -63,12 +77,15 @@ public class Game {
      * Hint: Loop through the board and check each cell
      */
     private ArrayList<int[]> getEmptyCells() {
-        // TODO: Complete this method
         ArrayList<int[]> emptyCells = new ArrayList<>();
-        
+        // 2D LOOP
+        for(int row = 0; row < board.length; row++){
+            for(int col = 0; col < board[0].length; col++){
+            if(board[row][col] == 0) emptyCells.add(new int[]{row,col});
+            }
+        }
         return emptyCells;
     }
-    
     /**
      * TODO #3: Implement the moveLeft method
      * Requirements:
@@ -90,6 +107,46 @@ public class Game {
         // TODO: Complete this method
         boolean moved = false;
         
+        //check through every row
+        for(int row = 0; row < board.length; row++){
+            // temporary took for us to use to reorganize the numbers
+            int[] temp = new int[BOARD_SIZE];
+
+            // SMARTER COPY: only copy over non-zeros, effectivley shifting to the left
+            int copyCount = 0;
+            for(int col = 0; col < board[0].length; col++){
+                if(board[row][col] != 0) temp[copyCount++] = board[row][col];
+            }
+            for(int col = 0; col < board[0]. length; col++){
+                // copy values; col should work as a counter for temp
+                temp[col] = board[row][col];
+            }
+            // HARD PART
+            for(int col = 0; col < board[0].length; col++){
+                // MERGE + scootch
+                if(temp[col] == temp[col+ 1]) {
+                    temp[col] = temp[col]*2;
+                    // merged items count towards the total points
+                    score += temp[col];
+                    // scootch everything over once
+                    for(int scootch = col+1; scootch < board[0].length - 1; scootch++){
+                        temp[scootch] = temp[scootch+1];
+                    }
+                    // add a zero at the end
+                    temp[board[0].length - 1] = 0;
+                }
+            }
+
+
+            // CHECK FOR DIFFERENCES -- much easier
+            for(int col = 0; col < board[0].length; col++){
+                if(temp[col] != board[row][col]) {
+                    moved = true;
+                    board[row] = temp; // replace the row with new values
+                }
+            }
+        }
+        if(moved) addRandomTile();
         return moved;
     }
     

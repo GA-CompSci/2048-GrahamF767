@@ -5,7 +5,6 @@ import java.util.Random;
  * Game class for 2048
  * Contains all game logic and state management
  * 
- * STUDENT VERSION: Complete the TODO sections to make the game work!
  */
 public class Game {
     private static final int BOARD_SIZE = 4;
@@ -87,7 +86,6 @@ public class Game {
         return emptyCells;
     }
     /**
-     * TODO #3: Implement the moveLeft method
      * Requirements:
      * - Slide all tiles to the left (remove gaps)
      * - Merge adjacent tiles with same value
@@ -104,7 +102,6 @@ public class Game {
      * 2. If any row changed, add a random tile
      */
     public boolean moveLeft() {
-        // TODO: Complete this method
         boolean moved = false;
         
         //check through every row
@@ -117,14 +114,11 @@ public class Game {
             for(int col = 0; col < board[0].length; col++){
                 if(board[row][col] != 0) temp[copyCount++] = board[row][col];
             }
-            for(int col = 0; col < board[0]. length; col++){
-                // copy values; col should work as a counter for temp
-                temp[col] = board[row][col];
-            }
+
             // HARD PART
-            for(int col = 0; col < board[0].length; col++){
+            for(int col = 0; col < board[0].length - 1; col++){
                 // MERGE + scootch
-                if(temp[col] == temp[col+ 1]) {
+                if(temp[col] == temp[col+1]) {
                     temp[col] = temp[col]*2;
                     // merged items count towards the total points
                     score += temp[col];
@@ -160,8 +154,47 @@ public class Game {
      * Hint: Process from right to left instead of left to right
      */
     public boolean moveRight() {
-        // TODO: Complete this method
         boolean moved = false;
+        
+        //check through every row
+        for(int row = 0; row < board.length; row++){
+
+            // temporary took for us to use to reorganize the numbers
+            int[] temp = new int[BOARD_SIZE];
+
+            // SMARTER COPY: only copy over non-zeros, effectivley shifting to the left
+            int copyCount = 0;
+            for(int col = 0; col < board[0].length; col++){
+                if(board[row][col] != 0) temp[copyCount++] = board[row][col];
+            }
+
+            // HARD PART
+            for(int col = 0; col < board[0].length - 1; col++){
+                // MERGE + bump
+                if(temp[col] == temp[col+1]) {
+                    temp[col] = temp[col]*2;
+                    // merged items count towards the total points
+                    score += temp[col];
+                    // scootch everything over once
+                    for(int scootch = col+1; scootch < board[0].length - 1; scootch++){
+                        temp[scootch] = temp[scootch+1];
+                    }
+                    // add a zero at the end
+                    temp[board[0].length - 1] = 0;
+                }
+            }
+
+
+            // CHECK FOR DIFFERENCES -- much easier
+            for(int col = 0; col < board[0].length; col++){
+                if(temp[col] != board[row][col]) {
+                    moved = true;
+                    
+                }
+                board[row] = temp; // replace the row with new values
+            }
+        }
+        if(moved) addRandomTile();
         
         return moved;
     }

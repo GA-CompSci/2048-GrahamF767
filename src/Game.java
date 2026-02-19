@@ -199,7 +199,6 @@ public class Game {
     }
     
     /**
-     * TODO #5: Implement the moveUp method
      * Requirements:
      * - Similar logic to moveLeft but operates on columns
      * - Slide tiles up
@@ -208,9 +207,9 @@ public class Game {
      * Hint: Work with columns instead of rows
      */
     public boolean moveUp() {
-        // TODO: Complete this method
         boolean moved = false;
-         //check through every row
+
+         //check through every col
         for(int col = 0; col < board.length; col++){
 
             // temporary took for us to use to reorganize the numbers
@@ -223,18 +222,18 @@ public class Game {
             }
 
             // HARD PART
-            for(int row = 0; row < board.length - 1; row++){
+            for(int row = 0; row < BOARD_SIZE - 1; row++){
                 // MERGE + bump
                 if(temp[row] == temp[row + 1]) {
                     temp[row] = temp[row] * 2;
                     // merged items count towards the total points
                     score += temp[row];
                     // scooch everything over once
-                    for(int scooch = row + 1; scooch < board[0].length - 1; scooch++){
+                    for(int scooch = row + 1; scooch < BOARD_SIZE - 1; scooch++){
                         temp[scooch] = temp[scooch + 1];
                     }
                     // add a zero at the end
-                    temp[board[0].length - 1] = 0;
+                    temp[BOARD_SIZE - 1] = 0;
                 }
             }
 
@@ -243,11 +242,17 @@ public class Game {
             for(int row = 0; row < board[0].length; row++){
                 if(temp[row] != board[row][col]) {
                     moved = true;
-                    board[row] = temp; // replace the row with new values
+                   // can't copy a row like the side-to-side methods, we need a seperate loop
                 }
-                
             }
-        }
+            if(moved){
+                // COPY THE **COLUMN** VALUES by traversing the rows can setting board = temp
+                for(int row = 0; row < BOARD_SIZE; row++){
+                    board[row][col] = temp[row];
+                }
+            }
+            
+        } // ends loop through the columns
         if(moved) addRandomTile();
         
         return moved;
@@ -263,7 +268,53 @@ public class Game {
     public boolean moveDown() {
         // TODO: Complete this method
         boolean moved = false;
-        
+
+         //check through every col
+        for(int col = 0; col < board.length; col++){
+
+            // temporary took for us to use to reorganize the numbers
+            int[] temp = new int[BOARD_SIZE];
+
+            // SMARTER COPY: only copy over non-zeros, effectivley shifting to the left
+            int copyCount = BOARD_SIZE - 1;
+            for(int row = BOARD_SIZE - 1; row > -1; row--){
+                if(board[row][col] != 0) temp[copyCount--] = board[row][col];
+            }
+
+            // HARD PART
+            for(int row = BOARD_SIZE - 1; row > 0; row--){
+                // MERGE + bump
+                if(temp[row] == temp[row - 1]) {
+                    temp[row] = temp[row] * 2;
+                    // merged items count towards the total points
+                    score += temp[row];
+                    // scooch everything over once
+                    for(int scooch = row - 1; scooch > 0; scooch--){
+                        temp[scooch] = temp[scooch - 1];
+                    }
+                    // add a zero at the end
+                    temp[0] = 0;
+                }
+            }
+
+
+            // CHECK FOR DIFFERENCES -- much easier
+            for(int row = BOARD_SIZE - 1; row > -1; row--){
+                if(temp[row] != board[row][col]) {
+                    moved = true;
+                   // can't copy a row like the side-to-side methods, we need a seperate loop
+                }
+            }
+            if(moved){
+                // COPY THE **COLUMN** VALUES by traversing the rows can setting board = temp
+                for(int row = 0; row < BOARD_SIZE; row++){
+                    board[row][col] = temp[row];
+                }
+            }
+            
+        } // ends loop through the columns
+        if(moved) addRandomTile();
+    
         return moved;
     }
     
